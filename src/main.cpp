@@ -3,9 +3,11 @@
 
 const int DT_PIN=36;
 const int SCK_PIN=26;
+const int DISPLAY_X=320;
+const int DISPLAY_Y=240;
 
-long offset;
 String jobname;
+long GetOffSetValue(int n);
 
 HX711 scale;
 
@@ -18,15 +20,23 @@ void setup(){
   }
 
 void loop(){
-
-  if (scale.is_ready()) {
-  } else {
-    M5.Lcd.println("HX711 not found.");
-  }
+  M5.Lcd.println(jobname);
 
   delay(1000);
 
 }
 
 long GetOffSetValue(int n){
+  long offset;
+  for(size_t i=0;i<n;i++){
+  offset+=scale.read_average(10);
+  jobname=("Wait for"+String(n-i)+"sec");
+}
+jobname=("offset value="+String(offset/n));
+return offset;
+
+}
+
+int TextCentering(int pixel,int size,int textlen){
+  return (DISPLAY_X-(pixel*size*textlen))/2;
 }
