@@ -1,42 +1,39 @@
 #include <M5Stack.h>
 #include "HX711.h"
 
-const int DT_PIN=36;
-const int SCK_PIN=26;
-const int DISPLAY_X=320;
-const int DISPLAY_Y=240;
 
-String jobname;
-long GetOffSetValue(int n);
+const int DT_PIN = 36;
+const int SCK_PIN = 26;
 
 HX711 scale;
 
-void setup(){
-  M5.begin();
-  M5.Power.begin();
-  M5.Lcd.begin();
-  Serial.begin(115200);
-  scale.begin(DT_PIN,SCK_PIN);
-  }
+void setup() {
+	Serial.begin(115200);
+	Serial.println("start");
+	scale.begin(DT_PIN, SCK_PIN);
 
-void loop(){
-  M5.Lcd.println(jobname);
+	Serial.print("read:");
+	Serial.println(scale.read());
 
-  delay(1000);
+	scale.set_scale();
+	scale.tare();
 
+	Serial.print("calibrating...");
+	delay(5000);
+	Serial.println(scale.get_units(50));
+
+	scale.set_scale(-20.54);
+	scale.tare();
+
+	Serial.print("read (calibrated):");
+	Serial.println(scale.get_units(10));
 }
 
-long GetOffSetValue(int n){
-  long offset;
-  for(size_t i=0;i<n;i++){
-  offset+=scale.read_average(10);
-  jobname=("Wait for"+String(n-i)+"sec");
-}
-jobname=("offset value="+String(offset/n));
-return offset;
 
-}
+void loop() {
+	Serial.println(scale.get_units(10), 1);
 
-int TextCentering(int pixel,int size,int textlen){
-  return (DISPLAY_X-(pixel*size*textlen))/2;
+	scale.power_down();
+	delay(500);
+	scale.power_up();
 }
